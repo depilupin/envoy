@@ -1,0 +1,21 @@
+name: RCE-Proof-Of-Concept (Safe)
+
+on:
+  pull_request_target:   # ⚠️ Unsafe if used with untrusted PRs
+
+jobs:
+  poc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show controlled execution
+        run: |
+          echo "=== SAFE RCE DEMO ==="
+          echo "Actor: ${{ github.actor }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Current date: $(date)"
+          echo "System info: $(uname -a)"
+          echo "Working directory: $(pwd)"
+          echo "Files here:"
+          ls -lah
+          echo "=== END DEMO ==="
